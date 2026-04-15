@@ -4,26 +4,14 @@
 ## Project Overview
 This project analyzes personal Spotify listening history combined with audio features (energy, valence, danceability, tempo, acousticness, etc.) to uncover patterns in music preferences.
 
-## Dataset
-- **Source**: Personal Spotify Extended Streaming History + Spotify Web API audio features
-- **Records**: 1,558 play events | 1,535 unique tracks | 921 unique artists
-- **Period**: April 2025 – April 2026
-- Raw streaming data is excluded from this repository (`.gitignore`) as it contains private personal data.
+## Data Source
+- Personal Spotify Extended Streaming History (private, excluded via `.gitignore`)
+- Spotify Web API audio features
+- 1,558 play events | 1,535 unique tracks | 921 unique artists | April 2025 – April 2026
 
 ## Milestone 1 – Data Collection, EDA & Hypothesis Tests
-**File**: `milestone1.ipynb`
 
-### Contents
-1. Data loading & cleaning
-2. Exploratory Data Analysis
-   - Audio feature distributions
-   - Correlation heatmap
-   - Top artists & tracks
-   - Monthly listening activity
-   - Hourly & day-of-week patterns
-   - Valence (mood) over time
-   - Energy vs. Valence scatter
-3. Hypothesis Tests (α = 0.05)
+`milestone1.ipynb` covers data loading & cleaning, exploratory data analysis, and hypothesis testing.
 
 | Hypothesis | Test | p-value | Result |
 |---|---|---|---|
