@@ -4,11 +4,7 @@ Ayse Gulcan Yoruk | DSA 210 Introduction to Data Science | Spring 2026
 
 ## Project Overview
 
-This project analyzes personal Spotify listening history together with Spotify audio features such as energy, valence, danceability, tempo, acousticness, loudness, and speechiness. The project combines exploratory data analysis, hypothesis testing, and traditional machine learning methods to study listening patterns and repeated track plays.
-
-## Motivation
-
-Music listening behavior can reflect personal preferences, routines, mood, and repeated engagement with specific songs or artists. This project uses Spotify listening records to explore whether audio characteristics are related to listening behavior and whether they can help predict whether a track is played repeatedly.
+This project analyzes personal Spotify listening history together with Spotify audio features such as energy, valence, danceability, tempo, acousticness, loudness, and speechiness. Milestone 1 focuses on exploratory data analysis and hypothesis testing. Milestone 2 focuses on machine learning tasks that are better matched to the available audio-feature data.
 
 ## Dataset
 
@@ -25,7 +21,7 @@ gulcan_spotify_formatted.json
 
 This file is excluded from GitHub through `.gitignore` because it contains personal listening history. To reproduce the notebooks, place the private JSON file in the repository root before running the code.
 
-Milestone 1 outputs report:
+Dataset summary:
 
 - 1,558 play events
 - 1,535 unique tracks
@@ -39,14 +35,12 @@ Milestone 1 outputs report:
 |-- milestone1.ipynb
 |-- milestone2.ipynb
 |-- images/
-|-- reports/
-|   |-- figures/
-|   `-- final_report/
-|       `-- main.tex
 |-- requirements.txt
 |-- README.md
 `-- .gitignore
 ```
+
+The report/LaTeX folder was removed for now. The current focus is working code, reliable ML results, and generated figures.
 
 ## Milestone 1
 
@@ -71,70 +65,140 @@ Hypothesis test summary:
 | Acoustic songs have lower tempo | Mann-Whitney U | <0.0001 | Rejected |
 | Energy and danceability are positively correlated | Spearman correlation | <0.0001 | Rejected |
 
-## Milestone 2
+## Milestone 2 Research Questions
 
-`milestone2.ipynb` adds a reproducible preprocessing and machine learning workflow.
+The original repeated-listening classification target was removed because almost all track-artist pairs appeared exactly once. Daytime/nighttime classification was also tested, but audio features produced near-random AUC values. The final Milestone 2 tasks are therefore:
 
-The machine learning task is binary classification:
+### Classification Question
 
-- Target variable: `frequently_played`
-- Positive class: tracks with play count greater than or equal to 2
-- Negative class: tracks with play count equal to 1
+Can Spotify audio features predict whether a song is high-energy or low-energy?
 
-The notebook includes:
+Target:
 
-- Data understanding and missing value checks
-- Numeric skewness analysis
-- `log1p` transform for strongly skewed positive numeric variables
-- Scaling inside sklearn pipelines
-- Binary categorical handling
-- One-hot encoding for non-binary categorical variables
-- Text cleaning and optional lemmatization/TF-IDF preparation
-- Date/time feature engineering for auditability
-- Leakage-risk review before modeling
-- Stratified train/test split
+```text
+high_energy = 1 if energy >= median(energy)
+high_energy = 0 if energy < median(energy)
+```
+
+Important leakage rule:
+
+```text
+energy is removed from the predictor features.
+```
+
+### Regression Question
+
+Can Spotify audio features predict a song's acousticness score?
+
+Target:
+
+```text
+acousticness
+```
+
+Important leakage rule:
+
+```text
+acousticness is removed from the predictor features.
+```
+
+## Milestone 2 Pipeline
+
+`milestone2.ipynb` includes:
+
+- Missing-value checks
+- Target construction
+- Leakage checks
+- Audio-only feature engineering
+- Numeric imputation and scaling
+- One-hot encoding for `key` and `mode`
+- sklearn `Pipeline` and `ColumnTransformer`
 - Cross-validated hyperparameter tuning
-- Confusion matrices and classification reports
-- Model comparison table
-- Random Forest feature importance
+- Backward feature-selection audit with `SequentialFeatureSelector`
+- Classification model comparison
+- Regression model comparison
+- Final figures saved to `images/`
 
-Models compared:
+## Models Tested
+
+Classification models:
 
 - Logistic Regression
 - Gaussian Naive Bayes
 - Decision Tree
 - Random Forest
+- Extra Trees
 - Support Vector Machine
 - Gradient Boosting
-- AdaBoost
+- Hist Gradient Boosting
 
-## Reports and Figures
+Regression models:
 
-Milestone 1 figures are available in `images/` and copied into `reports/figures/` for report use.
+- Ridge Regression
+- Decision Tree Regressor
+- Random Forest Regressor
+- Extra Trees Regressor
+- Support Vector Regressor
+- Gradient Boosting Regressor
+- Hist Gradient Boosting Regressor
 
-The Milestone 2 notebook generates additional outputs in `reports/figures/` after it is run with the private data file, including:
+## Current Milestone 2 Results
 
-- `target_distribution.png`
-- `confusion_matrix_logistic_regression.png`
-- `confusion_matrix_random_forest.png`
-- `model_comparison.png`
-- `feature_importance_random_forest.png`
+### Classification Results
 
-Current Milestone 2 run summary:
-
-- Track-level rows: 1,535
-- Frequently played tracks: 22
-- Best held-out F1-score: Random Forest, F1 = 0.400
-- Random Forest test metrics: accuracy = 0.990, precision = 1.000, recall = 0.250, ROC-AUC = 0.748
-- Main interpretation: audio features provide limited but measurable signal; class imbalance makes accuracy alone misleading.
-
-The final report scaffold is located at:
+Best model:
 
 ```text
-reports/final_report/main.tex
+Extra Trees Classifier
 ```
 
-The LaTeX report uses IEEE two-column format and includes the current Milestone 2 model results from the private-data notebook run.
+Held-out test results:
+
+```text
+F1-score:          0.904
+Accuracy:          0.904
+Precision:         0.899
+Recall:            0.910
+Balanced accuracy: 0.904
+ROC-AUC:           0.969
+```
+
+Interpretation:
+
+The model can classify high-energy vs low-energy songs very well using other audio features such as loudness, acousticness, tempo, danceability, valence, key, and mode. This result is strong and passes the 0.6 F1 threshold.
+
+### Regression Results
+
+Best model:
+
+```text
+Support Vector Regressor
+```
+
+Held-out test results:
+
+```text
+R2:   0.678
+MAE:  0.158
+RMSE: 0.212
+```
+
+Interpretation:
+
+The model can predict acousticness reasonably well from the remaining audio features. The result passes the 0.6 R2 threshold and is much stronger than the earlier valence-regression attempt, which did not pass the threshold.
+
+## Generated Milestone 2 Figures
+
+The current Milestone 2 notebook writes these figures to `images/`:
+
+- `m2_audio_feature_correlation_heatmap.png`
+- `m2_classification_confusion_matrix.png`
+- `m2_classification_roc_curve.png`
+- `m2_classification_model_comparison.png`
+- `m2_classification_feature_importance.png`
+- `m2_regression_predicted_vs_actual.png`
+- `m2_regression_residuals.png`
+- `m2_regression_model_comparison.png`
 
 ## How to Run
 
@@ -155,10 +219,10 @@ Before running, make sure `gulcan_spotify_formatted.json` is in the repository r
 
 ## Reproducibility
 
-The Milestone 2 workflow uses `RANDOM_STATE = 42`, a fixed stratified train/test split, sklearn `Pipeline`, and `ColumnTransformer`. Preprocessing steps are fit inside cross-validation folds to reduce train-test leakage.
+The Milestone 2 workflow uses `RANDOM_STATE = 42`, fixed train/test splits, sklearn `Pipeline`, and `ColumnTransformer`. Preprocessing steps are fit inside cross-validation folds to reduce train-test leakage.
 
 No private raw data is committed to GitHub. Model results should be regenerated locally using the private JSON file.
 
 ## Academic Integrity and AI Assistance
 
-AI assistance was used for repository organization, preprocessing design, machine learning pipeline structure, documentation, and the LaTeX report scaffold. AI was not used to fabricate data, model scores, or findings.
+AI assistance was used for repository organization, preprocessing design, machine learning pipeline structure, documentation, and code review. AI was not used to fabricate data, model scores, or findings.
