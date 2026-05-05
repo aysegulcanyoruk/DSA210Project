@@ -20,6 +20,29 @@ This project analyzes personal Spotify listening history combined with audio fea
 | H3: Acoustic → lower tempo | Mann-Whitney (one-tailed) | <0.0001 | **Rejected** |
 | H4: Energy & danceability correlated | Spearman ρ (one-tailed) | <0.0001 | **Rejected** |
 
+## Milestone 2 – Machine Learning Methods
+
+`milestone1.ipynb` was extended with machine learning methods to predict whether a track is frequently played based on Spotify audio features.
+
+### ML Task
+- Problem type: Binary classification
+- Target variable: `frequently_played`
+- Definition: Tracks with play count ≥ 2 are labeled as frequently played.
+
+### Models Used
+- Logistic Regression
+- Decision Tree Classifier
+- Random Forest Classifier
+
+### Evaluation Metrics
+- Accuracy
+- Precision
+- Recall
+- F1-score
+
+### Interpretation
+The models were compared to evaluate whether audio features such as energy, valence, danceability, acousticness, and tempo can predict repeated listening behavior. Feature importance from the Random Forest model was also used to understand which audio features were most influential.
+
 ## How to Reproduce
 ```bash
 pip install pandas numpy matplotlib seaborn scipy jupyter
