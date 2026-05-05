@@ -19,7 +19,7 @@ Spring 2026}
 \maketitle
 
 \begin{abstract}
-This project analyzes a personal Spotify listening history enriched with Spotify audio features to study music preferences, listening patterns, and repeated listening behavior. Milestone 1 focused on exploratory data analysis and non-parametric hypothesis testing. Milestone 2 extends the project with a reproducible machine learning workflow that predicts whether a track is frequently played using audio features and selected Spotify metadata. The workflow uses leakage-aware preprocessing, stratified train/test splitting, cross-validated hyperparameter tuning, and model comparison across traditional classifiers. \textcolor{red}{TODO: Add the final best model, test F1-score, and key interpretation after rerunning milestone2.ipynb with the private data file.}
+This project analyzes a personal Spotify listening history enriched with Spotify audio features to study music preferences, listening patterns, and repeated listening behavior. Milestone 1 focused on exploratory data analysis and non-parametric hypothesis testing. Milestone 2 extends the project with a reproducible machine learning workflow that predicts whether a track is frequently played using audio features and selected Spotify metadata. The workflow uses leakage-aware preprocessing, stratified train/test splitting, cross-validated hyperparameter tuning, and model comparison across traditional classifiers. The best held-out F1-score was obtained by Random Forest (F1 = 0.400), which achieved high precision but low recall because the frequently played class was rare.
 \end{abstract}
 
 \section{Introduction / Motivation}
@@ -28,9 +28,7 @@ Music listening behavior can reflect personal preferences, mood, routines, and r
 The project is designed as an academically honest and reproducible DSA 210 data science workflow. The raw listening history is private and therefore excluded from GitHub. Code, documentation, figures, and report scaffolding are included so the analysis can be reproduced locally by placing the private JSON file in the project root.
 
 \section{Data Source}
-The dataset consists of personal Spotify Extended Streaming History records enriched with Spotify Web API audio features. The private data file is expected to be named \texttt{gulcan\_spotify\_formatted.json}. Milestone 1 outputs report 1,558 play events, 1,535 unique tracks, and 921 unique artists covering April 2025 to April 2026.
-
-\textcolor{red}{TODO: Confirm the exact data export date and describe the Spotify API enrichment process in more detail if required by the final course report.}
+The dataset consists of personal Spotify Extended Streaming History records enriched with Spotify Web API audio features. The private data file is named \texttt{gulcan\_spotify\_formatted.json}. The formatted dataset contains 1,558 play events, 1,535 unique track names, and 921 unique artists covering April 2025 to April 2026.
 
 \section{Data Collection}
 The listening records include track name, artist name, playback timestamp, and audio features. The raw JSON file is excluded from version control because it contains personal listening history. The repository includes notebooks and generated figures, but not the private raw data.
@@ -82,7 +80,28 @@ Milestone 2 frames the problem as binary classification. A track is labeled as f
 The notebook evaluates Logistic Regression, Gaussian Naive Bayes, Decision Tree, Random Forest, Support Vector Machine, Gradient Boosting, and AdaBoost. Hyperparameters are tuned using cross-validation with a stratified split. If class imbalance is detected, F1-score is used as the primary tuning metric; otherwise accuracy is used.
 
 \section{Results}
-\textcolor{red}{TODO: Rerun milestone2.ipynb with gulcan\_spotify\_formatted.json and insert the final model comparison table.}
+The track-level modeling table contains 1,535 tracks. The target is highly imbalanced: 1,513 tracks were played once, while only 22 tracks were played at least twice. Because of this imbalance, accuracy alone is not a reliable success metric. F1-score, recall, balanced accuracy, and ROC-AUC were used to interpret the models more carefully.
+
+\begin{table}[htbp]
+\centering
+\caption{Milestone 2 model comparison on the held-out test set.}
+\begin{tabular}{lccccc}
+\toprule
+Model & Acc. & Prec. & Rec. & F1 & ROC-AUC \\
+\midrule
+Random Forest & 0.990 & 1.000 & 0.250 & 0.400 & 0.748 \\
+AdaBoost & 0.987 & 0.500 & 0.250 & 0.333 & 0.808 \\
+Decision Tree & 0.984 & 0.333 & 0.250 & 0.286 & 0.622 \\
+SVM & 0.980 & 0.250 & 0.250 & 0.250 & 0.757 \\
+Logistic Reg. & 0.648 & 0.019 & 0.500 & 0.036 & 0.604 \\
+Naive Bayes & 0.277 & 0.018 & 1.000 & 0.035 & 0.752 \\
+Gradient Boost. & 0.987 & 0.000 & 0.000 & 0.000 & 0.674 \\
+\bottomrule
+\end{tabular}
+\label{tab:model_comparison}
+\end{table}
+
+Random Forest was selected as the best balanced model by held-out F1-score. Its tuned configuration used class weighting, 100 trees, maximum depth 10, and minimum leaf size 5. It predicted very few positive cases, but the positive cases it predicted were correct, producing precision of 1.000 and recall of 0.250. This indicates that the model is conservative: it can identify some frequently played tracks, but it misses most of them.
 
 \begin{figure}[htbp]
 \centering
@@ -93,9 +112,9 @@ The notebook evaluates Logistic Regression, Gaussian Naive Bayes, Decision Tree,
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\linewidth]{../figures/confusion_matrix_logistic_regression.png}
-\caption{Confusion matrix for the tuned Logistic Regression classifier.}
-\label{fig:cm_lr}
+\includegraphics[width=\linewidth]{../figures/confusion_matrix_random_forest.png}
+\caption{Confusion matrix for the tuned Random Forest classifier.}
+\label{fig:cm_rf}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -113,7 +132,9 @@ The notebook evaluates Logistic Regression, Gaussian Naive Bayes, Decision Tree,
 \end{figure}
 
 \section{Discussion}
-\textcolor{red}{TODO: Add discussion after confirming the best model and its held-out test performance. Discuss whether audio features alone provide enough signal for repeated listening behavior.}
+The results suggest that Spotify audio features contain some signal for repeated listening behavior, but the signal is limited. The best model reached high test accuracy, but this is partly caused by the extreme class imbalance. Random Forest achieved the strongest F1-score because it avoided false positives while finding one quarter of the frequently played tracks in the held-out split. AdaBoost produced the highest ROC-AUC among the tested models, but its F1-score was lower than Random Forest because its positive-class precision and recall tradeoff was weaker.
+
+Naive Bayes reached recall of 1.000, but its precision was only 0.018 and its accuracy was low, meaning it labeled too many tracks as frequently played. Gradient Boosting achieved high accuracy but did not identify any positive examples, which makes it unsuitable for this imbalanced target despite its apparent accuracy. Overall, the modeling results should be interpreted cautiously: audio features alone are not enough to fully explain repeated listening, but they provide a reproducible baseline for comparing more context-aware future models.
 
 \section{Limitations}
 The project uses one person's listening history, so findings should not be generalized to broader Spotify users. The target variable is based on repeated listening within the available history and may be affected by time window length, playlist behavior, mood, seasonality, and external context. Audio features alone may not capture social, lyrical, cultural, or situational reasons for repeated listening.
@@ -125,7 +146,7 @@ Future work could evaluate temporal validation, include additional context featu
 The raw data contains personal listening history and is therefore excluded from the public repository. The analysis should avoid overclaiming psychological or emotional conclusions from audio features alone. Any sharing of the project should preserve privacy and avoid exposing personally sensitive listening records.
 
 \section{AI Assistance Disclosure}
-AI assistance was used to improve project organization, preprocessing design, machine learning pipeline structure, repository documentation planning, and this LaTeX scaffold. The assistance did not fabricate data or model results. Unverified results are marked with red TODO notes until the notebook is rerun with the private data file. This section is the project's AI assistance disclosure.
+AI assistance was used to improve project organization, preprocessing design, machine learning pipeline structure, repository documentation planning, and this LaTeX scaffold. The assistance did not fabricate data or model results. The Milestone 2 notebook was rerun with the private JSON file before reporting the model results in this document. This section is the project's AI assistance disclosure.
 
 \section{References}
 \begin{thebibliography}{1}
@@ -138,8 +159,6 @@ F. Pedregosa et al., ``Scikit-learn: Machine Learning in Python,'' Journal of Ma
 \bibitem{scipy}
 P. Virtanen et al., ``SciPy 1.0: Fundamental Algorithms for Scientific Computing in Python,'' Nature Methods, vol. 17, pp. 261--272, 2020.
 
-\bibitem{course}
-\textcolor{red}{TODO: Add the official DSA 210 project guideline reference if a citation format is required.}
 \end{thebibliography}
 
 \end{document}

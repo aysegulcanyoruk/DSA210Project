@@ -116,8 +116,17 @@ The Milestone 2 notebook generates additional outputs in `reports/figures/` afte
 
 - `target_distribution.png`
 - `confusion_matrix_logistic_regression.png`
+- `confusion_matrix_random_forest.png`
 - `model_comparison.png`
 - `feature_importance_random_forest.png`
+
+Current Milestone 2 run summary:
+
+- Track-level rows: 1,535
+- Frequently played tracks: 22
+- Best held-out F1-score: Random Forest, F1 = 0.400
+- Random Forest test metrics: accuracy = 0.990, precision = 1.000, recall = 0.250, ROC-AUC = 0.748
+- Main interpretation: audio features provide limited but measurable signal; class imbalance makes accuracy alone misleading.
 
 The final report scaffold is located at:
 
@@ -125,7 +134,7 @@ The final report scaffold is located at:
 reports/final_report/main.tex
 ```
 
-The LaTeX report uses IEEE two-column format and includes red TODO notes for results that must be filled in only after rerunning the notebook with the private data.
+The LaTeX report uses IEEE two-column format and includes the current Milestone 2 model results from the private-data notebook run.
 
 ## How to Run
 
@@ -152,4 +161,4 @@ No private raw data is committed to GitHub. Model results should be regenerated 
 
 ## Academic Integrity and AI Assistance
 
-AI assistance was used for repository organization, preprocessing design, machine learning pipeline structure, documentation, and the LaTeX report scaffold. AI was not used to fabricate data, model scores, or findings. Any unverified or incomplete report items are marked as red TODO notes in the LaTeX file.
+AI assistance was used for repository organization, preprocessing design, machine learning pipeline structure, documentation, and the LaTeX report scaffold. AI was not used to fabricate data, model scores, or findings.
