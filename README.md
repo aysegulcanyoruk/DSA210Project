@@ -216,13 +216,3 @@ jupyter notebook milestone2.ipynb
 ```
 
 Before running, make sure `gulcan_spotify_formatted.json` is in the repository root.
-
-## Reproducibility
-
-The Milestone 2 workflow uses `RANDOM_STATE = 42`, fixed train/test splits, sklearn `Pipeline`, and `ColumnTransformer`. Preprocessing steps are fit inside cross-validation folds to reduce train-test leakage.
-
-No private raw data is committed to GitHub. Model results should be regenerated locally using the private JSON file.
-
-## Academic Integrity and AI Assistance
-
-AI assistance was used for repository organization, preprocessing design, machine learning pipeline structure, documentation, and code review. AI was not used to fabricate data, model scores, or findings.
